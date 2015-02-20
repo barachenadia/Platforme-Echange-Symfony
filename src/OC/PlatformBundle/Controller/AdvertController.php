@@ -1,35 +1,59 @@
 <?php
-
 // src/OC/PlatformBundle/Controller/AdvertController.php
 
 namespace OC\PlatformBundle\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+
 
 class AdvertController extends Controller
 {
-  // La route fait appel à OCPlatformBundle:Advert:view,
-  // on doit donc définir la méthode viewAction.
-  // On donne à cette méthode l'argument $id, pour
-  // correspondre au paramètre {id} de la route
-  public function viewAction($id)
+public function indexAction($page)
   {
-    // $id vaut 5 si l'on a appelé l'URL /platform/advert/5
+    if ($page < 1) {
+        throw new NotFoundHttpException('Page "'.$page.'" inexistante.');
+    }
 
-    // Ici, on récupèrera depuis la base de données
-    // l'annonce correspondant à l'id $id.
-    // Puis on passera l'annonce à la vue pour
-    // qu'elle puisse l'afficher
-
-    return new Response("Affichage de l'annonce d'id : ".$id);
+    return $this->render('OCPlatformBundle:Advert:index.html.twig');
   }
 
-   public function viewSlugAction($slug, $year, $format)
-    {
-        return new Response(
-            "On pourrait afficher l'annonce correspondant au
-            slug '".$slug."', créée en ".$year." et au format ".$format."."
+
+public function viewAction($id){
+    return $this->render(
+       'OCPlatformBundle:Advert:view.html.twig', array('id' => $id)
         );
-    }
+  }
+
+public function addAction(Request $request)
+ {
+    if($request->isMethod('Post'))
+     {
+        $request->getSession()->getFlashBag()->add('notice', 'Annonce bien enregistrée.');
+        return $this->redirect($this->generateUrl('oc_platform_view'), array('id' => 5));
+     }
+
+    return $this->render('OCPlatformBundle:Advert:view.html.twig');
+  }
+
+
+public function editAction($id, Request $request)
+ {
+
+    if( $request->isMethode('Post'))
+     {
+       $request->getSession()->getFlashBag()->add('notice', 'Annonce bien modifiée');
+       return $this->redirect($this->generateUrl('oc_platform_view', array('id'=> 5)));
+     }
+
+     return $this->render('OCPlatformBundle:Advert:edit.html.twig');
+ }
+
+public function deleteAction($id)
+ {
+   return $this->render('OCPlatformBundle:advert:delete.html.twig');
+ }
+
 }
+
